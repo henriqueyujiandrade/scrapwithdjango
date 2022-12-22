@@ -19,14 +19,14 @@ class ScrapValidationError(APIException):
 class MonitorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Monitor
-        fields = ['id','description','price','category']
-        read_only_fields = ['description','price']   
+        fields = ['id','description','price','category','store','link']
+        read_only_fields = ['description','price','store','link']   
 
     def create(self, validated_data):
         monitor_dict = []
         monitors = Scrapper.scrapping(validated_data)
         if not monitors:
-            raise ScrapValidationError("scrapper did not found any items")
+            raise ScrapValidationError("scrapper didn't find any items")
 
         for monitor in monitors:          
             find_existing_monitor = Monitor.objects.filter(description=monitor['description'])

@@ -6,3 +6,5 @@ class Monitor(models.Model):
     description = models.TextField()
     price = models.TextField()
     category = models.TextField()
+    store = models.TextField()
+    link = models.URLField()
