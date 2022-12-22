@@ -1,41 +1,39 @@
 from rest_framework import serializers
-from time import sleep
 
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
+from rest_framework.exceptions import APIException
 
-from bs4 import BeautifulSoup
+
 
 import ipdb
 from .models import Monitor
+from .scrapping import Scrapper
+
+
+class UniqueValidationError(APIException):
+    status_code = 200
+
+class ScrapValidationError(APIException):
+    status_code = 404
+
 
 class MonitorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Monitor
         fields = ['id','description','price','category']
-        read_only_fields = ['description','price','category']
+        read_only_fields = ['description','price']   
 
     def create(self, validated_data):
-        navigate = webdriver.Chrome()
-        navigate.get('https://www.terabyteshop.com.br/')
-        input_place = navigate.find_element(By.ID, "isearch")
-        input_place.send_keys('monitor 144hz')
-        input_place.submit()
+        monitor_dict = []
+        monitors = Scrapper.scrapping(validated_data)
+        if not monitors:
+            raise ScrapValidationError("scrapper did not found any items")
 
-        sleep(5)
+        for monitor in monitors:          
+            find_existing_monitor = Monitor.objects.filter(description=monitor['description'])
+            if not find_existing_monitor:        
+                monitor_data = Monitor.objects.create(**monitor)
+                monitor_dict.append(monitor_data)
+        if not monitor_dict:
+             raise UniqueValidationError("there is no new data")
 
-        page_content = navigate.page_source
-        site = BeautifulSoup(page_content, 'html.parser')
-        monitors_data = site.find_all('div', attrs={'class':'commerce_columns_item_inner'})
-
-        for monitor_data in monitors_data:
-            description = monitor_data.find('h2')
-            price = monitor_data.find('div', attrs={'class':'prod-new-price'})
-            if price:
-                current_price = price.find('span').text
-                new_data = {'description': description.text , 'price': current_price, 'category':'monitor'}
-                monitor = Monitor.objects.create(**new_data)    
-            
-            
-        return monitor
+        return monitor_data
