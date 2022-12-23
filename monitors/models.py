@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 import uuid
 # Create your models here.
 class Monitor(models.Model):
@@ -8,3 +9,5 @@ class Monitor(models.Model):
     category = models.TextField()
     store = models.TextField()
     link = models.URLField()
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)

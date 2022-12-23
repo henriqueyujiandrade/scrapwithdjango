@@ -16,6 +16,12 @@ class ScrapValidationError(APIException):
     status_code = 404
 
 
+class MonitorGetSerializer(serializers.ModelSerializer):
+     class Meta:
+        model = Monitor
+        fields = ['id','description','price','category','store','link','created_at', 'updated_at']
+        read_only_fields = ['description','price','store','link', 'created_at', 'updated_at']   
+
 class MonitorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Monitor
@@ -37,3 +43,4 @@ class MonitorSerializer(serializers.ModelSerializer):
              raise UniqueValidationError("there is no new data")
 
         return monitor_data
+
