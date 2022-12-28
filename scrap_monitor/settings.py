@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "monitors",
     "users",
+    "prices"
 ]
 
 MIDDLEWARE = [
