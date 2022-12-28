@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from rest_framework.exceptions import APIException
+from datetime import datetime
 
 import ipdb
 from .models import Monitor
@@ -8,6 +9,7 @@ from prices.models import Price
 from prices.serializers import PriceSerializer
 
 from .scrapping import Scrapper
+from .email import Email
 
 
 
@@ -67,7 +69,18 @@ class MonitorPatchSerializer(serializers.ModelSerializer):
     def update(self, instance: Monitor, validated_data: dict):
         for key, value in validated_data.items():
             setattr(instance, key, value)
-            Price.objects.create(price=value, monitor=instance)
+            prices = Price.objects.filter(monitor=instance)
+            if prices:
+                last_update = prices[len(prices) -1].created_at.timestamp()
+                now_time = datetime.today().timestamp()
+                last_value = prices[len(prices) -1].price          
+            
+            if prices==[] or now_time-last_update>=43000 or last_value != value:
+                Price.objects.create(price=value, monitor=instance)
+
+            check_value = float(value.replace(",","."))
+            if check_value<=800:
+                Email.send_email(instance.description,value,instance.link)
 
         instance.save()
 

@@ -11,7 +11,7 @@ from .scrapping import Scrapper
 import ipdb
 
 class MonitorScrappingView(APIView):  
-      
+
   def post(self, request: Request) -> Response:
         serializer = MonitorSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -28,7 +28,7 @@ class MonitorScrappingView(APIView):
             serializer.is_valid(raise_exception=True)
 
             serializer.save()
-
+        
         return Response({'message':'Update Success'})
 
 class MonitorView(generics.ListAPIView):
