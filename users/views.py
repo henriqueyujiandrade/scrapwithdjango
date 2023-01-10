@@ -11,7 +11,11 @@ from .mixins import SerializerByMethodMixin
 from .models import User
 from .permissions import IsAdminOrOwner, IsAdminToGet
 
-from .serializers import UserSerializer, PatchUserSerializer, DeleteOrChangeUserSerializer
+from .serializers import (
+    UserSerializer,
+    PatchUserSerializer,
+    DeleteOrChangeUserSerializer,
+)
 
 
 class UserRegisterView(generics.ListCreateAPIView):
@@ -20,7 +24,8 @@ class UserRegisterView(generics.ListCreateAPIView):
     serializer_class = UserSerializer
     queryset = User.objects.all()
 
-class UserDetailView(SerializerByMethodMixin ,generics.RetrieveUpdateAPIView):
+
+class UserDetailView(SerializerByMethodMixin, generics.RetrieveUpdateAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAdminOrOwner]
 
@@ -30,26 +35,25 @@ class UserDetailView(SerializerByMethodMixin ,generics.RetrieveUpdateAPIView):
     }
     # serializer_class = UserSerializer
     queryset = User.objects.all()
-    lookup_url_kwarg = 'pk'
+    lookup_url_kwarg = "pk"
+
 
 class UserDeleteOrChangeView(generics.RetrieveUpdateAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAdminUser]
     serializer_class = DeleteOrChangeUserSerializer
     queryset = User.objects.all()
-    lookup_url_kwarg = 'pk'
-   
+    lookup_url_kwarg = "pk"
 
 
 class LoginView(ObtainAuthToken):
-    
     def post(self, request: Request) -> Response:
         serializer = self.serializer_class(
             data=request.data, context={"request": request}
         )
 
         serializer.is_valid(raise_exception=True)
-        
+
         user = serializer.validated_data["user"]
         token, _ = Token.objects.get_or_create(user=user)
 

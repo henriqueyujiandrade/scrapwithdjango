@@ -16,7 +16,6 @@ class UserSerializer(serializers.Serializer):
     is_superuser = serializers.BooleanField(read_only=True)
     date_joined = serializers.DateTimeField(read_only=True)
 
-
     def create(self, validated_data):
         user_obj = User.objects.create_user(**validated_data)
 

@@ -11,5 +11,5 @@ class User(AbstractUser):
     email = models.CharField(unique=True, max_length=127)
     birthdate = models.DateField()
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     REQUIRED_FIELDS = ["email", "first_name", "last_name", "birthdate"]
