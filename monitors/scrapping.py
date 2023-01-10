@@ -3,33 +3,35 @@ from time import sleep
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
+import undetected_chromedriver as uc
+
 from bs4 import BeautifulSoup
 
 import ipdb
 
 class Scrapper:
     def scrapping():
-        monitor_terabyte = Scrapper.get_terabyte_data()        
+        # monitor_terabyte = Scrapper.get_terabyte_data()        
         
-        monitorpichau_1 = Scrapper.get_pichau_data('1')
-        monitorpichau_2 = Scrapper.get_pichau_data('2')        
-        monitor_pichau = monitorpichau_1 + monitorpichau_2
+        # monitorpichau_1 = Scrapper.get_pichau_data('1')
+        # monitorpichau_2 = Scrapper.get_pichau_data('2')        
+        # monitor_pichau = monitorpichau_1 + monitorpichau_2
 
         monitorkabum_1 = Scrapper.get_kabum_data('1')
         monitorkabum_2 = Scrapper.get_kabum_data('2')
         monitor_kabum = monitorkabum_1 + monitorkabum_2   
         
-        all_monitors = monitor_terabyte + monitor_pichau + monitor_kabum
-        return all_monitors
+        # all_monitors = monitor_terabyte + monitor_pichau + monitor_kabum
+        return monitor_kabum
 
     def get_terabyte_data():
         monitors = []
-        options = Options()
-        options.add_argument('window-size=1050,800')
-        navigate = webdriver.Chrome(options=options)
-        navigate.get(f'https://www.terabyteshop.com.br/monitores')
-        sleep(2)
-        page_content = navigate.page_source
+        options = uc.ChromeOptions()
+        options.headless=True
+        options.add_argument('--headless')
+        driver = uc.Chrome(options=options)
+        driver.get(f'https://www.terabyteshop.com.br/monitores')
+        page_content = driver.page_source
         site = BeautifulSoup(page_content, 'html.parser')
 
         not_found = site.find('h1', attrs={'class':'busca-zerada'})
@@ -62,17 +64,18 @@ class Scrapper:
                     'link': link
                 }
                 monitors.append(new_data)
+        
         return monitors
 
 
     def get_pichau_data(input):
         monitors = []
-        options = Options()
-        options.add_argument('window-size=1200,800')
-        navigate = webdriver.Chrome(options=options)
-        navigate.get(f'https://www.pichau.com.br/monitores/monitores-geral?page={input}')
-        sleep(2)
-        page_content = navigate.page_source
+        options = uc.ChromeOptions()
+        options.headless=True
+        options.add_argument('--headless')
+        driver = uc.Chrome(options=options)
+        driver.get(f'https://www.pichau.com.br/monitores/monitores-geral?page={input}')
+        page_content = driver.page_source
         site = BeautifulSoup(page_content, 'html.parser')
 
         not_found = site.find('p')
@@ -99,7 +102,7 @@ class Scrapper:
                         
                 if array_hz and len(array_hz[0])<=7:
                     digits = ''.join([n for n in array_hz[0] if n.isdigit()])
-                    hz = int(digits)
+                    hz = int(digits)                    
 
                 if array_hz and len(array_hz[0])>7:
                     second_array_text = array_hz[0].split(' ')
@@ -130,12 +133,12 @@ class Scrapper:
 
     def get_kabum_data(input):
         monitors = []
-        options = Options()
-        options.add_argument('window-size=1200,800')
-        navigate = webdriver.Chrome(options=options)
-        navigate.get(f'https://www.kabum.com.br/computadores/monitores/monitor-gamer?page_number={input}&page_size=100&facet_filters=&sort=price')
-        sleep(2)
-        page_content = navigate.page_source
+        options = uc.ChromeOptions()
+        options.headless=True
+        options.add_argument('--headless')
+        driver = uc.Chrome(options=options)
+        driver.get(f'https://www.kabum.com.br/computadores/monitores/monitor-gamer?page_number={input}&page_size=100&facet_filters=&sort=price')
+        page_content = driver.page_source
         site = BeautifulSoup(page_content, 'html.parser')
 
         not_found = site.find('p')
@@ -166,8 +169,10 @@ class Scrapper:
                 for second_text in second_array_text:
                     if 'hz' in second_text:
                         second_array_hz.append(second_text)
-                if len(second_array_hz[0])<7:         
+                if len(second_array_hz[0])<7 and len(second_array_hz[0])>2:
+                    print(second_array_hz)         
                     digits = ''.join([n for n in second_array_hz[0] if n.isdigit()])
+                    print(digits)
                     hz = int(digits)               
 
                                             

@@ -73,13 +73,15 @@ class MonitorPatchSerializer(serializers.ModelSerializer):
             if prices:
                 last_update = prices[len(prices) -1].created_at.timestamp()
                 now_time = datetime.today().timestamp()
-                last_value = prices[len(prices) -1].price          
+                last_value = prices[len(prices) -1].price
+                if now_time-last_update>=43000 or last_value != value:
+                    Price.objects.create(price=value, monitor=instance)          
             
-            if prices==[] or now_time-last_update>=43000 or last_value != value:
+            if not prices:
                 Price.objects.create(price=value, monitor=instance)
 
             check_value = float(value.replace(",","."))
-            if check_value<=800:
+            if check_value<=1000:
                 Email.send_email(instance.description,value,instance.link)
 
         instance.save()
